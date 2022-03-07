@@ -1,0 +1,21 @@
+#!/bin/sh
+
+case "$1" in
+	-h|--help)
+		echo TODO
+		exit 0
+	;;
+	*)
+		cmd="$1"
+		shift
+
+		cd scripts || exit 1
+		# TODO: don't use fzf if the script exists -> there might be another one still matching
+		# TODO: show preview of --help of that command & allow executing it with different arguments
+		if file="$(fzf -1 -q "${cmd}")"
+		then
+			bash "${file}" "$@"
+		else
+			echo "No command specified. gitf aborted"
+		fi
+esac
