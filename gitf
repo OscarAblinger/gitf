@@ -1,5 +1,21 @@
 #!/bin/sh
 
+gitf_folder="$(dirname "$(readlink -f "$0")")"
+scripts_folder="${gitf_folder}/scripts"
+
+function getFile () {
+	cmd="$1"
+	if [ -x "${scripts_folder}/${cmd}" ]
+	then
+		echo "${scripts_folder}/${cmd}"
+	else
+		file="$(ls "${scripts_folder}" | fzf -1 -q "${cmd}")"
+		success="$?"
+		printf "%s/%s\n" "${scripts_folder}" "${file}"
+		return "${success}"
+	fi
+}
+
 case "$1" in
 	-h|--help)
 		echo TODO
@@ -9,10 +25,8 @@ case "$1" in
 		cmd="$1"
 		shift
 
-		cd scripts || exit 1
-		# TODO: don't use fzf if the script exists -> there might be another one still matching
 		# TODO: show preview of --help of that command & allow executing it with different arguments
-		if file="$(fzf -1 -q "${cmd}")"
+		if file="$(getFile "${cmd}")"
 		then
 			bash "${file}" "$@"
 		else
