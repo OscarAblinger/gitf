@@ -13,3 +13,22 @@ A wrapper around git with a few useful extra command and seemless
 ## Usage
 
 > To be documented
+
+## Extend gitf
+
+The actual `gitf` shell script essentially only tries to load scripts from the `scripts` folder.
+So if you want to add another command, just drop the shell script in that folder.
+All shell scripts will be executed using `bash`.
+
+# How is it different to [forgit](https://github.com/wfxr/forgit) or [git-fuzzy](https://github.com/bigH/git-fuzzy)?
+
+Both forgit and git-fuzzy are full graphical interfaces.
+There's nothing wrong with that, but I wanted a more light-weight version that doesn't change
+anything fundamental, but rather just enhances the normal git experience.
+Your default git editor will for instance still open and allow you to edit commits, rebase todos
+etc..
+
+This makes gitf better for quick commands and usage in conjunction with other programs (e.g. through
+piping) and keeping the original CLI feeling.
+
+In the end it's a personal preference and I encourage you to check out the other two projects.
