@@ -67,11 +67,11 @@ fi
 # lastCommits is an associative array with the commit hash as key and
 # a newline separated list of the file names as value.
 declare -A lastCommits
-IFS=$'\n'; for file in $(git diff --name-only);
+IFS=$'\n'; for file in $(git diff --name-only 2>/dev/null);
 do
     if [[ $ROOT != "" ]];
     then
-        commit=$(git log -1 --format="format:%H" "${ROOT}.." -- "${file}")
+        commit=$(git log -1 --format="format:%H" "${ROOT}.." -- "${file}" 2>/dev/null)
 
         # When a root is specified, a file could have no changes before that.
         # We simply ignore that file then.
@@ -80,7 +80,7 @@ do
             lastCommits[$commit]+="$file"$'\n'
         fi
     else
-        commit=$(git log -1 --format="format:%H" -- "${file}")
+        commit=$(git log -1 --format="format:%H" -- "${file}" 2>/dev/null)
         lastCommits["$commit"]+="$file"$'\n'
     fi
 done
@@ -89,22 +89,22 @@ declare -A renamedFiles=()
 if (( ${#FIND_RENAMES[@]} ));
 then
     # first add all files indvidually as intent-to-add
-    intentToAdd=$(git ls-files -o --exclude-standard)
+    intentToAdd=$(git ls-files -o --exclude-standard 2>/dev/null)
     for file in $intentToAdd;
     do
-        git add -N "$file"
+        git add -N "$file" 2>/dev/null
     done
 
     # get all renames and save them into an associative array
     while IFS=$'\t' read -r origFile newFile;
     do
         renamedFiles["$origFile"]="$newFile"
-    done < <(git diff --name-status --diff-filter=R "${FIND_RENAMES[@]}" | cut -f 2,3)
+    done < <(git diff --name-status --diff-filter=R "${FIND_RENAMES[@]}" 2>/dev/null | cut -f 2,3)
     
     # remove intent-to-add
     for file in $intentToAdd;
     do
-        git reset -q -- "$file"
+        git reset -q -- "$file" 2>/dev/null
     done
 fi
 
@@ -114,7 +114,7 @@ fi
 add_file() {
     if [[ $DRY_RUN == false ]];
     then
-        git add "$1"
+        git add "$1" 2>/dev/null
     else
         printf "\t%s\n" "$1"
     fi
@@ -126,7 +126,7 @@ for commit in "${!lastCommits[@]}";
 do
     if [[ $DRY_RUN == true ]];
     then
-        printf "%s\n" "$(git log -1 --color --format="format:%C(auto)%h%d%Creset: (%aN) %s" "${commit}")"
+        printf "%s\n" "$(git log -1 --color --format="format:%C(auto)%h%d%Creset: (%aN) %s" "${commit}" 2>/dev/null)"
     fi
 
     for file in ${lastCommits[$commit]};
@@ -140,7 +140,7 @@ do
 
     if [[ $DRY_RUN == false ]];
     then
-        git commit --fixup "${commit}"
+        git commit --fixup "${commit}" 2>/dev/null
     fi
 done
 unset IFS
