@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# tries to copy the input into the clipboard
+function copy2clipboard () {
+	read commit
+	if command -v xclip >/dev/null # found on most linux running X
+	then
+		printf "%s" "${commit}" | xclip -selection c
+	elif command -v pbcopy >/dev/null # found on mac os
+	then
+		printf "%s" "${commit}" | pbcopy
+	elif [ -e /dev/clipboard ] # found on windows 10+ or cygwin
+	then
+		printf "%s" "${commit}" > /dev/clipboard
+	elif command -v clip.exe >/dev/null # found on windows
+	then
+		printf "%s" "${commit}" | clip.exea
+	else
+		# if all else fails, instead output it to the console
+		printf "%s\n" "${commit}"
+	fi
+}
+
+git log --pretty=oneline "$@" | fzf -1 | cut -d" " -f1 | copy2clipboard
