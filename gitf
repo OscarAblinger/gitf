@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# TODO: if command is not found and fzf doesn't match it try to use git normally
+#	if that returns suggestions (e.g. did you mean log) then parse those and fzf
+
 gitf_folder="$(dirname "$(readlink -f "$0")")"
 scripts_folder="${gitf_folder}/scripts"
 
