@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# TODO: allow option -b or --break to stop after the rebase and don't open selection
+# TODO: allow option --continue that will continue after the break
+# TODO: allow option -p or --prepend that will allow you to specify the message of the first commit instead
+	of the second one
+# TODO: allow option -m (multiple times) to specify the message of the newly created commit
+# TODO: allow option --select-via="..." that allows selecting a selection script
+
+# TODO: select commit via fzf
+temp_branch_name="gitf-split-temporary-branch"
+
+commit="$1"
+parents="$(git rev-list --parents -1 ${commit} | cut -s -d" " -f2-)"
+nr_of_parents="$(printf "%s" "${parents}" | wc -w)"
+
+# use --root for initial commit, abort on a merge commit or use parent commit for others
+if [ $nr_of_parents -eq 0 ]
+then
+	rebase_base="--root"
+elif [ $nr_of_parents -gt 1 ]
+then
+	printf "Cannot split merge commits\n"
+	exit 1
+else
+	rebase_base="${parents}"
+fi
+
+# interactive rebase that breaks after the selected commit
+export EDITOR="sed -i '1a break"
+git rebase -i "${rebase_base}" || exit 1
+
+# read commit message
+message="$(git log -1 --format="%s%n%n%b")"
+
+# reset to previous commit
+if [ $nr_of_parents -eq 0 ]
+then
+	git checkout --orphan "${temp_branch_name}"
+else
+	git reset head~
+fi
+
+
+
